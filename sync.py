@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-import subprocess, tldextract, os
+import subprocess, tldextract, json, os
 
 with open('config.json', 'r') as f: config = json.load(f)
 
