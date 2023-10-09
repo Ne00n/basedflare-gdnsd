@@ -42,7 +42,7 @@ while True:
         subdomains.append(domain)
         zone = gdnsdZone(subdomains)
         current.append(domain)
-        currentZoneHash = hashlib.sha256(zone.encode('utf-8')).hexdigest()
+        currentZoneHash = hashlib.sha256(' '.join(subdomains).encode('utf-8')).hexdigest()
         if not domain in cache: 
             cache[domain] = currentZoneHash
             reload = True
