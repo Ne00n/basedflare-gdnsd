@@ -1,0 +1,21 @@
+plugins => { geoip => {
+    maps => {
+        geo_map => {
+        geoip2_db => geo.mmdb,
+        datacenters => [dc1, dc2],
+        auto_dc_coords => {
+            dc1 => [ 38.9, -77 ],
+            dc2 => [ 50.1, 8.7 ],
+        }
+        }
+},
+    resources => {
+        geo_www => {
+        map => geo_map
+        dcmap => {
+            dc1 => 192.0.2.100,
+            dc2 => 192.0.2.101
+        }
+        }
+    }
+}}
