@@ -39,6 +39,7 @@ while True:
     current,reload = [],False
 
     for domain,subdomains in domains.items():
+        subdomains.append(domain)
         zone = gdnsdZone(subdomains)
         current.append(domain)
         currentZoneHash = hashlib.sha256(zone.encode('utf-8')).hexdigest()
