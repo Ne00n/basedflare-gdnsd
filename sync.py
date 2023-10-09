@@ -17,10 +17,10 @@ while True:
             if not ext.registered_domain in domains: domains[ext.registered_domain] = []
             if ext.subdomain: domains[ext.registered_domain].append(domain)
 
-    def gdnsdZone(domains):
+    def gdnsdZone(domain,domains):
             nameservers = config['nameservers'].split(",") 
             template = f'''$TTL 86400
-@     SOA ns1 admin.{nameservers[0]}. (
+@     SOA ns1 admin.{domain}. (
     1      ; serial
     7200   ; refresh
     30M    ; retry
@@ -40,7 +40,7 @@ while True:
 
     for domain,subdomains in domains.items():
         subdomains.append(domain)
-        zone = gdnsdZone(subdomains)
+        zone = gdnsdZone(domain,subdomains)
         current.append(domain)
         currentZoneHash = hashlib.sha256(' '.join(subdomains).encode('utf-8')).hexdigest()
         if not domain in cache: 
