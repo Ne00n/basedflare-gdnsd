@@ -15,7 +15,7 @@ while True:
         for domain in user['domains']:
             ext = tldextract.extract(domain)
             if not ext.registered_domain in domains: domains[ext.registered_domain] = []
-            if ext.subdomain: domains[ext.registered_domain].append(domain)
+            if ext.subdomain: domains[ext.registered_domain].append(ext.subdomain)
 
     def gdnsdZone(domain,domains):
             nameservers = config['nameservers'].split(",") 
