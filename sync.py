@@ -43,11 +43,10 @@ while True:
         zone = gdnsdZone(subdomains)
         current.append(domain)
         currentZoneHash = hashlib.sha256(' '.join(subdomains).encode('utf-8')).hexdigest()
-        if not domain in cache: 
-            cache[domain] = currentZoneHash
-            reload = True
+        if not domain in cache: reload = True
         if currentZoneHash != cache[domain]: reload = True
-        if reload: 
+        if reload:
+            cache[domain] = currentZoneHash 
             with open(f"{gdnsdZonesDir}/{domain}", 'w') as out: out.write(zone)
 
     files = os.listdir(gdnsdZonesDir)
