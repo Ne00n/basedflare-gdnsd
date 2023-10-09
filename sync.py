@@ -1,8 +1,11 @@
 from pymongo import MongoClient
-import subprocess, tldextract, hashlib, json, time, os
+import subprocess, tldextract, hashlib, redis, json, time, os
 
 with open('config.json', 'r') as f: config = json.load(f)
-client = MongoClient(config['mongodb']) 
+client = MongoClient(config['mongodb'])
+
+pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
+redis = redis.Redis(connection_pool=pool)
 
 cache = {}
 while True:
@@ -15,7 +18,18 @@ while True:
         for domain in user['domains']:
             ext = tldextract.extract(domain)
             if not ext.registered_domain in domains: domains[ext.registered_domain] = []
-            if ext.subdomain: domains[ext.registered_domain].append(ext.subdomain)
+            if ext.subdomain: domains[ext.registered_domain].append({"record":ext.subdomain,"type":"A"})
+
+    keys = redis.keys('dns:*')
+    for key in keys:
+        domain = key.decode("utf-8").split(":")[1][:-1]
+        data = redis.hgetall(key)
+        for row,details in data.items():
+            details = details.decode("utf-8")
+            row = row.decode("utf-8")
+            details = json.loads(details)
+            if row == "@": continue
+            domains[domain].append({"record":row,"type":"TXT","content":details['txt'][0]['text']})
 
     def gdnsdZone(domain,domains):
             nameservers = config['nameservers'].split(",") 
@@ -31,7 +45,11 @@ while True:
 @   NS	{nameservers[0]}.
 @   NS	{nameservers[1]}.
 '''
-            for domain in domains: template += f"{domain}     30    DYNA    geoip!geo_www\n"
+            for row in domains: 
+                if row['type'] == "TXT":
+                    template += f"{row['record']}     60    TXT    \"{row['content']}\"\n"
+                else:
+                    template += f"{row['record']}     30    DYNA    geoip!geo_www\n"
             return template
 
     #update zones
@@ -39,10 +57,10 @@ while True:
     current,reload = [],False
 
     for domain,subdomains in domains.items():
-        subdomains.append(domain)
+        subdomains.append({"record":"@","type":"A"})
         zone = gdnsdZone(domain,subdomains)
         current.append(domain)
-        currentZoneHash = hashlib.sha256(' '.join(subdomains).encode('utf-8')).hexdigest()
+        currentZoneHash = hashlib.sha256(json.dumps(subdomains, sort_keys=True).encode('utf-8')).hexdigest()
         if not domain in cache: 
             cache[domain] = currentZoneHash
             reload = True
