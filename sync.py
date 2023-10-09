@@ -20,7 +20,7 @@ while True:
     def gdnsdZone(domains):
             nameservers = config['nameservers'].split(",") 
             template = f'''$TTL 86400
-@     SOA {nameservers[0]} admin. (
+@     SOA ns1 admin.{nameservers[0]}. (
     1      ; serial
     7200   ; refresh
     30M    ; retry
