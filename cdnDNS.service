@@ -1,0 +1,14 @@
+[Unit]
+Description=baseflared gdnsd service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=cdn
+Group=cdn
+Type=simple
+WorkingDirectory=/opt/basedflare-gdnsd/
+ExecStart=/usr/bin/python3 sync.py
+
+[Install]
+WantedBy=multi-user.target
