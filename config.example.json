@@ -1,0 +1,4 @@
+{
+    "mongodb":"mongodb://localhost:27017/",
+    "nameservers":"ns1.dns.com,ns2.dns.com"
+}

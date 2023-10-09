@@ -1,8 +1,10 @@
 from pymongo import MongoClient
 import subprocess, tldextract, os
 
+with open('config.json', 'r') as f: config = json.load(f)
+
 client = MongoClient() 
-client = MongoClient("mongodb://localhost:27017/") 
+client = MongoClient(config['mongodb']) 
 
 db = client['test']
 collection = db['accounts']
@@ -16,8 +18,9 @@ for user in cursor:
         if ext.subdomain: domains[ext.registered_domain].append(domain)
 
 def gdnsdZone(domains):
+        nameservers = config['nameservers'].split(",") 
         template = f'''$TTL 86400
-@     SOA ns1.dns.com admin. (
+@     SOA {nameservers[0]} admin. (
       1      ; serial
       7200   ; refresh
       30M    ; retry
@@ -25,8 +28,8 @@ def gdnsdZone(domains):
       900    ; ncache
 )
 
-@   NS	ns1.dns.com.
-@   NS	ns2.dns.com.
+@   NS	{nameservers[0]}.
+@   NS	{nameservers[1]}.
 '''
         for domain in domains: template += f"{domain}     30    DYNA    geoip!geo_www\n"
         return template
