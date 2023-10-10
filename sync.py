@@ -32,9 +32,9 @@ while True:
             for type in details:
                 for record in details[type]:
                     if type == "txt":
-                        domains[domain].append({"record":row,"type":type,"content":record['text']})
+                        domains[domain].append({"record":row,"type":type,"ttl":record['ttl'],"content":record['text']})
                     else:
-                        domains[domain].append({"record":row,"type":type,"content":record['ip']})
+                        domains[domain].append({"record":row,"type":type,"ttl":record['ttl'],"content":record['ip']})
 
     def gdnsdZone(domain,domains):
             nameservers = config['nameservers'].split(",") 
@@ -52,11 +52,11 @@ while True:
 '''
             for row in domains: 
                 if row['type'] == "txt":
-                    template += f"{row['record']}     60    TXT    \"{row['content']}\"\n"
+                    template += f"{row['record']}     {row['ttl']}    TXT    \"{row['content']}\"\n"
                 elif row['type'] == "DYNA":
                     template += f"{row['record']}     30    DYNA    geoip!geo_www\n"
                 else:
-                    template += f"{row['record']}     30    {row['type'].upper()}   {row['content']}\n"
+                    template += f"{row['record']}     {row['ttl']}    {row['type'].upper()}   {row['content']}\n"
             return template
 
     #update zones
