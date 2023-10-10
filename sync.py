@@ -57,7 +57,6 @@ while True:
     current,reload = [],False
 
     for domain,subdomains in domains.items():
-        subdomains.append({"record":"@","type":"A"})
         zone = gdnsdZone(domain,subdomains)
         current.append(domain)
         currentZoneHash = hashlib.sha256(json.dumps(subdomains, sort_keys=True).encode('utf-8')).hexdigest()
