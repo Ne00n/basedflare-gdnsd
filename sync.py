@@ -35,7 +35,7 @@ while True:
             nameservers = config['nameservers'].split(",") 
             template = f'''$TTL 86400
 @     SOA {nameservers[0]}. admin.{domain}. (
-    1      ; serial
+    {int(time.time())}  ; serial
     7200   ; refresh
     30M    ; retry
     3D     ; expire
