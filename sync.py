@@ -18,7 +18,7 @@ while True:
         for domain in user['domains']:
             ext = tldextract.extract(domain)
             if not ext.registered_domain in domains: domains[ext.registered_domain] = []
-            if ext.subdomain: domains[ext.registered_domain].append({"record":ext.subdomain,"type":"A"})
+            if ext.subdomain: domains[ext.registered_domain].append({"record":ext.subdomain,"type":"DYNA"})
 
     keys = redis.keys('dns:*')
     for key in keys:
@@ -29,7 +29,12 @@ while True:
             row = row.decode("utf-8")
             details = json.loads(details)
             if row == "@": continue
-            domains[domain].append({"record":row,"type":"TXT","content":details['txt'][0]['text']})
+            for type in details:
+                for record in details[type]:
+                    if type == "txt":
+                        domains[domain].append({"record":row,"type":type,"content":record['text']})
+                    else:
+                        domains[domain].append({"record":row,"type":type,"content":record['ip']})
 
     def gdnsdZone(domain,domains):
             nameservers = config['nameservers'].split(",") 
@@ -46,10 +51,12 @@ while True:
 @   NS	{nameservers[1]}.
 '''
             for row in domains: 
-                if row['type'] == "TXT":
+                if row['type'] == "txt":
                     template += f"{row['record']}     60    TXT    \"{row['content']}\"\n"
-                else:
+                elif row['type'] == "DYNA":
                     template += f"{row['record']}     30    DYNA    geoip!geo_www\n"
+                else:
+                    template += f"{row['record']}     30    {row['type'].upper()}   {row['content']}\n"
             return template
 
     #update zones
