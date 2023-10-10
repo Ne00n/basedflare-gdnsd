@@ -54,12 +54,13 @@ while True:
 
     #update zones
     gdnsdZonesDir = "/etc/gdnsd/zones"
+    prefix = "basedflare"
     current,reload = [],False
 
     for domain,subdomains in domains.items():
         subdomains.append({"record":"@","type":"A"})
         zone = gdnsdZone(domain,subdomains)
-        current.append(domain)
+        current.append(f"{prefix}{domain}")
         currentZoneHash = hashlib.sha256(json.dumps(subdomains, sort_keys=True).encode('utf-8')).hexdigest()
         if not domain in cache: 
             cache[domain] = currentZoneHash
@@ -68,12 +69,12 @@ while True:
             cache[domain] = currentZoneHash
             reload = True
         if reload:
-            with open(f"{gdnsdZonesDir}/{domain}", 'w') as out: out.write(zone)
+            with open(f"{gdnsdZonesDir}/{prefix}{domain}", 'w') as out: out.write(zone)
 
     files = os.listdir(gdnsdZonesDir)
     #domains removed from database
     for file in files:
-        if file not in current:
+        if file not in current and "baseflare" in file:
             os.remove(f"{gdnsdZonesDir}/{file}")
             reload = True
 
