@@ -52,13 +52,16 @@ while True:
 @   NS	{nameservers[0]}.
 @   NS	{nameservers[1]}.
 '''
-            for row in domains: 
+            ignore = []
+            for row in domains:
                 if row['type'] == "txt":
                     template += f"{row['record']}     {row['ttl']}    TXT    \"{row['content']}\"\n"
                 elif row['type'] == "DYNA":
+                    if row['record'] in ignore: continue
                     template += f"{row['record']}     30    DYNA    geoip!geo_www\n"
                 else:
                     template += f"{row['record']}     {row['ttl']}    {row['type'].upper()}   {row['content']}\n"
+                    if row['type'] == "a": ignore.append(row['record'])
             return template
 
     #update zones
