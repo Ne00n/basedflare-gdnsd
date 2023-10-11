@@ -9,20 +9,12 @@ redis = redis.Redis(connection_pool=pool)
 
 cache = {}
 while True:
-    db = client['test']
-    collection = db['accounts']
-    cursor = collection.find({})
-
-    domains = {}
-    for user in cursor:
-        for domain in user['domains']:
-            ext = tldextract.extract(domain)
-            if not ext.registered_domain in domains: domains[ext.registered_domain] = []
-            if ext.subdomain: domains[ext.registered_domain].append({"record":ext.subdomain,"type":"DYNA"})
 
     keys = redis.keys('dns:*')
+    domains = {}
     for key in keys:
         domain = key.decode("utf-8").split(":")[1][:-1]
+        if not domain in domains: domains[domain] = []
         data = redis.hgetall(key)
         for row,details in data.items():
             details = details.decode("utf-8")
@@ -35,6 +27,16 @@ while True:
                         domains[domain].append({"record":row,"type":type,"ttl":record['ttl'],"content":record['text']})
                     else:
                         domains[domain].append({"record":row,"type":type,"ttl":record['ttl'],"content":record['ip']})
+
+    db = client['test']
+    collection = db['accounts']
+    cursor = collection.find({})
+
+    for user in cursor:
+        for domain in user['domains']:
+            ext = tldextract.extract(domain)
+            if not ext.registered_domain in domains: domains[ext.registered_domain] = []
+            if ext.subdomain: domains[ext.registered_domain].append({"record":ext.subdomain,"type":"DYNA"})
 
     def gdnsdZone(domain,domains):
             nameservers = config['nameservers'].split(",") 
