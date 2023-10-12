@@ -84,9 +84,11 @@ while True:
     files = os.listdir(gdnsdZonesDir)
     #domains removed from database
     for file in files:
-        if file not in current and file not in config['nameservers'].split(","):
+        #if file not in current and file not in config['nameservers'].split(","):
+        if file not in current and not any(file in s for s in config['nameservers'].split(",")):
             os.remove(f"{gdnsdZonesDir}/{file}")
             reload = True
+
 
     if reload: subprocess.run(["/usr/bin/sudo", "/usr/bin/gdnsdctl", "reload-zones"])
     reload = False
