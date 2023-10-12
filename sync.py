@@ -84,7 +84,7 @@ while True:
     files = os.listdir(gdnsdZonesDir)
     #domains removed from database
     for file in files:
-        if file not in current and file not in config['nameservers'].split(",")[0]:
+        if file not in current and file not in config['nameservers'].split(","):
             os.remove(f"{gdnsdZonesDir}/{file}")
             reload = True
 
