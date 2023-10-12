@@ -4,7 +4,7 @@ import subprocess, tldextract, hashlib, redis, json, time, os
 with open('config.json', 'r') as f: config = json.load(f)
 client = MongoClient(config['mongodb'])
 
-pool = redis.ConnectionPool(host=config['mongodb']['host'], port=config['mongodb']['port'], db=0)
+pool = redis.ConnectionPool(host=config['redis']['host'], port=config['redis']['port'], db=0)
 redis = redis.Redis(connection_pool=pool)
 
 cache = {}
