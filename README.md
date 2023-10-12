@@ -1,7 +1,7 @@
 # basedflare-gdnsd
 
 ```
-adduser cdn --disabled-login
+useradd cdn -d /opt/basedflare-gdnsd -s /bin/bash
 mkdir /opt/basedflare-gdnsd && chown -R cdn:cdn /opt/basedflare-gdnsd/ && cd /opt/;su cdn
 git clone https://github.com/Ne00n/basedflare-gdnsd.git && cd basedflare-gdnsd
 exit
